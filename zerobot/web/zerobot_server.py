@@ -23,7 +23,7 @@ from aiohttp_security import (
 from zerobot import ZeroBot
 from .authorization import DictionaryAuthorizationPolicy, check_credentials
 from .user import User
-from zerobot.hardware_command import HardwareCommander
+from zerobot.web.hardware_command import HardwareCommander
 
 
 class ZeroBotServer:

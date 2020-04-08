@@ -3,11 +3,9 @@ from abc import ABC, abstractmethod
 import asyncio as aio
 from typing import Dict, Any
 
-from .zerobot import ZeroBot
-
 
 class AbstractHardwareCommand(ABC):
-    def __init__(self, bot: ZeroBot):
+    def __init__(self, bot: 'zerobot.ZeroBot'):
         self._bot = bot
 
     @property
@@ -114,7 +112,7 @@ class HardwareCommander:
     """Collection class for the different AbstractHardwareCommand types.
     Used for handling command messages received from the web frontend.
     """
-    def __init__(self, bot: ZeroBot):
+    def __init__(self, bot: 'zerobot.ZeroBot'):
         self._bot = bot
         self._commands = dict(
             camera_pan=CameraPanCommand(self.bot),
