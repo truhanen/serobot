@@ -13,6 +13,7 @@ setup(
     install_requires=[
         # Hardware control
         'psutil',
+        'smbus',
         'RPi.GPIO',
         'picamera',
         'rpi-ws281x',
