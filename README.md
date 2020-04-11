@@ -35,7 +35,7 @@ The package is currently being developed on the following system.
 Building the web interface requires Node.js/npm installation ([download page](https://www.npmjs.com/get-npm)), possibly on an external system.
 
 1. In the directory *truhanen/serobot/web/frontend*, run `npm run build`.
-1. If on an external system, copy the created dist directory to the respective path on the Raspberry Pi.
+1. If on an external system, copy the created *dist* directory to the respective path on the Raspberry Pi.
 
 ## Example
 
@@ -117,7 +117,7 @@ Follow the official [instructions](https://www.raspberrypi.org/documentation/con
 Create an empty file named *ssh* to the *boot* partition of the SD card.
 
 Optionally restrict to key based SSH authentication as follows.
-1. In the file */etc/ssh/ssh_config* on the *rootfs* partition, replace the line `# PasswordAuthentication yes` with` PasswordAuthentication no`.
+1. In the file */etc/ssh/ssh_config* on the *rootfs* partition, replace the line `# PasswordAuthentication yes` with `PasswordAuthentication no`.
 1. Create a directory */home/pi/.ssh* on the *rootfs* partition with permissions set to *700*.
 1. Create a file */home/pi/.ssh/authorized_keys* on the *rootfs* partition.
 1. Copy the contents of your own public key file, e.g. *~/.ssh/id_rsa.pub*, to the *authorized_keys* file.
@@ -133,11 +133,11 @@ To easily connect to the Raspberry Pi from your PC with `ssh pi@raspberrypi`, ad
 
 ### Raspbian setup
 
-On the Raspberry Pi, run `sudo raspi-config` and enable *Ìnterfacing Options* -> *Camera* and then *Ìnterfacing Options* -> *I2C*.
+On the Raspberry Pi, run `sudo raspi-config` and enable *Interfacing Options* -> *Camera* and then *Interfacing Options* -> *I2C*.
 
 ### Python environment setup
 
-1. On the Raspberry Pi, install Pip with `sudo apt install python3-pip`.
+1. On the Raspberry Pi, install pip with `sudo apt install python3-pip`.
 1. Install virtualenvwrapper & dependencies with `pip3 install --user virtualenvwrapper`
 1. Setup virtualenvwrapper by adding the following lines to */home/pi/.bashrc* and by running `source .bashrc`.
     ```
@@ -154,7 +154,7 @@ On the Raspberry Pi, run `sudo raspi-config` and enable *Ìnterfacing Options* -
 
 ### Internet access
 
-To access the Serobot web server from the Internet, you need a domain name and a DNS service, and probably also a dynamic DNS setup.
+To access the Serobot web UI from the Internet, you need a domain name and a DNS service, and probably also a dynamic DNS setup.
 
 One DNS service option is provided by [Namecheap](https://www.namecheap.com/), for which a simple DDNS client implementation can be found in [truhanen/ddnsclient](https://github.com/truhanen/ddnsclient).
 
