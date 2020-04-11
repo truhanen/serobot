@@ -4,7 +4,7 @@ from pathlib import Path
 from argparse import ArgumentParser, RawTextHelpFormatter
 from configparser import ConfigParser
 
-from zerobot.web.zerobot_server import ZeroBotServer
+from serobot.web.serobot_server import SerobotServer
 
 
 def parse_arguments():
@@ -48,5 +48,5 @@ def parse_arguments():
 
 
 if __name__ == '__main__':
-    server = ZeroBotServer(**parse_arguments())
+    server = SerobotServer(**parse_arguments())
     aio.run(server.start())

@@ -17,7 +17,7 @@ from .hardware import(
 
 
 @dataclass
-class ZeroBotStatus:
+class SerobotStatus:
     cpu_load:              float
     distance_sensor_value: float
     left_proximity_value:  bool
@@ -28,7 +28,7 @@ class ZeroBotStatus:
     camera_exposure:       int
 
 
-class ZeroBot:
+class Serobot:
     def __init__(self):
         self._rpi = RaspberryPi()
         self._camera = Camera()
@@ -76,7 +76,7 @@ class ZeroBot:
     def proximity_sensors(self):
         return self._proximity_sensors
 
-    async def get_status(self) -> ZeroBotStatus:
+    async def get_status(self) -> SerobotStatus:
         status = list(await aio.gather(
             self.rpi.async_get_cpu_load(),
             self.distance_sensor.async_get_distance(),
@@ -88,4 +88,4 @@ class ZeroBot:
                        self.buzzer.on,
                        self.camera.camera.exposure_speed])
 
-        return ZeroBotStatus(*status)
+        return SerobotStatus(*status)

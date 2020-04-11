@@ -6,7 +6,7 @@ from setuptools import setup
 
 
 setup(
-    name='zerobot',
+    name='serobot',
     version='0.1.0',
     author='Tuukka Ruhanen',
     author_email='tuukka.t.ruhanen@gmail.com',
@@ -23,12 +23,12 @@ setup(
         'cryptography',
     ],
     packages=[
-        'zerobot',
-        'zerobot.hardware',
-        'zerobot.web',
+        'serobot',
+        'serobot.hardware',
+        'serobot.web',
     ],
     scripts=[
-        'scripts/start_zerobot_server',
+        'scripts/start_serobot_server',
     ],
     zip_safe=False,
 )

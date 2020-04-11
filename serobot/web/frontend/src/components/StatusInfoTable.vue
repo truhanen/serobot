@@ -43,7 +43,7 @@
         }
     }
 
-    // Displayed labels for ZeroBotStatus values
+    // Displayed labels for SerobotStatus values
     const hw_status_labels = {
         cpu_load: 'CPU load, %',
         camera_exposure: 'Camera exposure, us',

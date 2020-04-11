@@ -1,4 +1,4 @@
-# zerobot
+# serobot
 
 API & web UI for controlling a Raspberry Pi robot.
 
@@ -8,7 +8,7 @@ API & web UI for controlling a Raspberry Pi robot.
     - Camera movement & imaging
     - Buzzer
     - RGB leds
-- Web server/UI with Python aiohttp & Vue.js
+- Web server & UI, Python aiohttp & Vue.js
 
 ## Development platform
 
@@ -36,7 +36,7 @@ pip install --user .
 Building the web interface requires Node.js/npm installation. (Possibly on an external system.)
 - [Node.js/npm download page](https://www.npmjs.com/get-npm)
 
-In the directory zerobot/web/frontend, run
+In the directory serobot/web/frontend, run
 ```
 npm run build
 ```
@@ -46,9 +46,9 @@ npm run build
 
 ```python
 import time
-from zerobot import ZeroBot
+from serobot import Serobot
 
-bot = ZeroBot()
+bot = Serobot()
 
 # Movement
 bot.motors.move_forward()
@@ -72,10 +72,10 @@ await bot.camera.async_take_picture('figure.jpg')
 
 ## Web server/UI configuration & usage
 
-Use the installed script `start_zerobot_server`,
+Use the installed script `start_serobot_server`,
 ```
-pi@raspberrypi:~ $ start_zerobot_server --help
-usage: start_zerobot_server [-h] [-a AUTH_FILE] [-c SSL_CERTFILE]
+pi@raspberrypi:~ $ start_serobot_server --help
+usage: start_serobot_server [-h] [-a AUTH_FILE] [-c SSL_CERTFILE]
                             [-k SSL_KEYFILE]
                             [config_file]
 

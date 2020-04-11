@@ -20,13 +20,13 @@ from aiohttp_security import (
     check_permission, check_authorized,
 )
 
-from zerobot import ZeroBot
+from serobot import Serobot
 from .authorization import DictionaryAuthorizationPolicy, check_credentials
 from .user import User
-from zerobot.web.hardware_command import HardwareCommander
+from serobot.web.hardware_command import HardwareCommander
 
 
-class ZeroBotServer:
+class SerobotServer:
     def __init__(self, auth_file=None, ssl_certfile=None, ssl_keyfile=None):
         """
         Parameters
@@ -48,7 +48,7 @@ class ZeroBotServer:
         self._ssl_keyfile = ssl_keyfile
 
         self._log = self._create_logger()
-        self._bot = ZeroBot()
+        self._bot = Serobot()
         self._hardware_commander = HardwareCommander(self.bot)
 
         # These queues are initialized in the start() coroutine.
@@ -101,7 +101,7 @@ class ZeroBotServer:
         return self._log
 
     @property
-    def bot(self) -> ZeroBot:
+    def bot(self) -> Serobot:
         return self._bot
 
     @property

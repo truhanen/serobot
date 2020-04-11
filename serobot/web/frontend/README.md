@@ -1,4 +1,4 @@
-# zerobot web frontend
+# serobot web frontend
 
 ## Project setup
 ```
