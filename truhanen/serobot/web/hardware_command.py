@@ -5,7 +5,7 @@ from typing import Dict, Any
 
 
 class AbstractHardwareCommand(ABC):
-    def __init__(self, bot: 'serobot.Serobot'):
+    def __init__(self, bot: 'truhanen.serobot.Serobot'):
         self._bot = bot
 
     @property
@@ -112,7 +112,7 @@ class HardwareCommander:
     """Collection class for the different AbstractHardwareCommand types.
     Used for handling command messages received from the web frontend.
     """
-    def __init__(self, bot: 'serobot.Serobot'):
+    def __init__(self, bot: 'truhanen.serobot.Serobot'):
         self._bot = bot
         self._commands = dict(
             camera_pan=CameraPanCommand(self.bot),

@@ -1,12 +1,12 @@
 
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 
 # TODO Optionally build the web frontend?
 
 
 setup(
-    name='serobot',
+    name='truhanen.serobot',
     version='0.1.0',
     author='Tuukka Ruhanen',
     author_email='tuukka.t.ruhanen@gmail.com',
@@ -22,11 +22,7 @@ setup(
         'aiohttp_session',
         'cryptography',
     ],
-    packages=[
-        'serobot',
-        'serobot.hardware',
-        'serobot.web',
-    ],
+    packages=find_namespace_packages(),
     scripts=[
         'scripts/start_serobot_server',
     ],

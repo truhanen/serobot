@@ -20,10 +20,10 @@ from aiohttp_security import (
     check_permission, check_authorized,
 )
 
-from serobot import Serobot
+from .. import Serobot
 from .authorization import DictionaryAuthorizationPolicy, check_credentials
 from .user import User
-from serobot.web.hardware_command import HardwareCommander
+from .hardware_command import HardwareCommander
 
 
 class SerobotServer:

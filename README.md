@@ -36,7 +36,7 @@ pip install --user .
 Building the web interface requires Node.js/npm installation. (Possibly on an external system.)
 - [Node.js/npm download page](https://www.npmjs.com/get-npm)
 
-In the directory serobot/web/frontend, run
+In the directory truhanen/serobot/web/frontend, run
 ```
 npm run build
 ```
@@ -46,7 +46,7 @@ npm run build
 
 ```python
 import time
-from serobot import Serobot
+from truhanen.serobot import Serobot
 
 bot = Serobot()
 
