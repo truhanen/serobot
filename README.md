@@ -37,10 +37,12 @@ Building the web interface requires Node.js/npm installation ([download page](ht
 1. In the directory *truhanen/serobot/web/frontend*, run `npm run build`.
 1. If on an external system, copy the created *dist* directory to the respective path on the Raspberry Pi.
 
-## Example
+## API example
 
 ```python
 import time
+import asyncio as aio
+
 from truhanen.serobot import Serobot
 
 bot = Serobot()
@@ -51,58 +53,65 @@ time.sleep(.5)
 bot.motors.turn_right()
 time.sleep(1)
 bot.motors.stop()
-# asyncio
-await bot.motors.async_move_forward(.5)
-await bot.motors.async_turn_right(1)
 
 # Camera
 bot.camera.pan_value = 100
 bot.camera.tilt_value = 100
 bot.camera.take_picture('figure.jpg')
-# asyncio
-await bot.camera.async_set_pan_value(100)
-await bot.camera.async_set_tilt_value(100)
-await bot.camera.async_take_picture('figure.jpg')
+
+# Do the same actions concurrently with awaitable methods.
+aio.run(aio.gather(
+    # Movement
+    bot.motors.async_move_forward(.5),
+    bot.motors.async_turn_right(1),
+    # Camera
+    bot.camera.async_set_pan_value(100),
+    bot.camera.async_set_tilt_value(100),
+    bot.camera.async_take_picture('figure.jpg'),
+))
 ```
 
 ## Web server/UI configuration & usage
 
-Use the installed script `start_serobot_server`,
+### User authentication
+
+For the web server to work, you need to list the authorized users in a file of the form
+
 ```
-pi@raspberrypi:~ $ start_serobot_server --help
-usage: start_serobot_server [-h] [-a AUTH_FILE] [-c SSL_CERTFILE]
-                            [-k SSL_KEYFILE]
-                            [config_file]
+# Username as the section header
+[myusername]
+# Password of the user
+password = mypassword
 
-positional arguments:
-  config_file           A configuration file listing the other arguments as
-
-                        [config]
-                        auth_file = /path/to/auth/file
-                        ssl_certfile = /path/to/ssl/certfile
-                        ssl_keyfile = /path/to/ssl/keyfile
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -a AUTH_FILE, --auth-file AUTH_FILE
-                        A file that lists the authorized usernames and
-                        passwords. The file must contain sections of the form
-
-                        [myusername]
-                        password = mypassword
-  -c SSL_CERTFILE, --ssl-certfile SSL_CERTFILE
-                        Path to a certificate file for SSL, .pem
-  -k SSL_KEYFILE, --ssl-keyfile SSL_KEYFILE
-                        Path to a key file for SSL, .pem
+# Another authorized user
+[myusername2]
+password = mypassword2
 ```
 
-Depending on the platform setup & server configuration, the web UI should now be accessible via a web browser at e.g. *http://192.168.1.100* (HTTP, [WLAN access](#ubuntu-pc--wifi-router-setup)) or *https://your.domain.name* ([HTTPS](#secure-https-connection-setup-with-lets-encrypthttpsletsencryptorg), [Internet access](#internet-access)).
+### Usage
+
+The web server can now be started with the installed script,
+
+```
+pi@raspberrypi:~ $ start_serobot_server -a authorized_users.conf
+```
+
+In case of HTTPS (setup instructions [below](#secure-https-connection-with-lets-encrypthttpsletsencryptorg)), give the certificate files as additional arguments to the script, or give a single path argument pointing to a configuration file of the form
+
+```
+[config]
+auth_file = /path/to/auth/file
+ssl_certfile = /path/to/ssl/certfile
+ssl_keyfile = /path/to/ssl/keyfile
+```
+
+The web UI should now be accessible via a web browser at e.g. *http\://192.168.1.100* (HTTP, [LAN access](#ubuntu-pc--wifi-router-setup)) or *https\://your.domain.name* ([HTTPS](#secure-https-connection-setup-with-lets-encrypthttpsletsencryptorg), [Internet access](#internet-access)).
 
 ## Platform setup
 
 Below are listed some step-by-step instructions for setting up a functional platform with a Ubuntu PC & wifi.
 
-### MicroSD card setup
+### SD card setup
 
 Use the Raspberry Pi Imager ([download page](https://www.raspberrypi.org/downloads/)) to write a Raspbian OS image on a microSD card.
 
@@ -129,7 +138,7 @@ Startup the Raspberry Pi. If setup correctly, the system should now be listed in
 
 In the settings of the router, add a reserved IP address, e.g. *192.168.1.100*, for the MAC address of the Raspberry Pi.
 
-To easily connect to the Raspberry Pi from your PC with `ssh pi@raspberrypi`, add the line `192.162.1.100 raspberrypi` (or whatever IP address and hostname you have chosen) to the file */etc/hosts*.
+To easily connect to the Raspberry Pi from your PC with `ssh pi@raspberrypi`, add the line `192.162.1.100 raspberrypi` (or whatever IP address and hostname you have chosen) to the file */etc/hosts* on your PC.
 
 ### Raspbian setup
 
@@ -160,7 +169,7 @@ One DNS service option is provided by [Namecheap](https://www.namecheap.com/), f
 
 Depending on whether HTTP or HTTPS is used, forward ports 80 or 443 to the Raspberry Pi from your wifi router settings.
 
-#### Secure HTTPS connection setup with [Let's Encrypt](https://letsencrypt.org)
+#### Secure HTTPS connection with [Let's Encrypt](https://letsencrypt.org)
 
 1. On the Raspberry Pi, install [Certbot](https://certbot.eff.org/) (tool recommended by Let's Encrypt) with `sudo apt install certbot`.
 1. In the settings of your wifi router, forward HTTP port 80, at least temporarily, to the Raspberry Pi.

@@ -12,23 +12,18 @@ def parse_arguments():
 
     argument_parser.add_argument(
         'config_file', nargs='?', type=Path,
-        help=('A configuration file listing the other arguments as\n'
-              '\n'
-              '[config]\n'
-              'auth_file = /path/to/auth/file\n'
-              'ssl_certfile = /path/to/ssl/certfile\n'
-              'ssl_keyfile = /path/to/ssl/keyfile'))
+        help='A configuration file that lists the other arguments.\n'
+             'See README.md for details.')
     argument_parser.add_argument(
         '-a', '--auth-file', type=Path,
-        help=('A file that lists the authorized usernames and\n'
-              'passwords. The file must contain sections of the form\n'
-              '\n'
-              '[myusername]\n'
-              'password = mypassword'))
+        help='A file that lists the authorized users and passwords.\n'
+             'See README.md for details.')
     argument_parser.add_argument(
-        '-c', '--ssl-certfile', type=Path, help='Path to a certificate file for SSL, .pem')
+        '-c', '--ssl-certfile', type=Path,
+        help='Path to a SSL certificate file for HTTPS, .pem')
     argument_parser.add_argument(
-        '-k', '--ssl-keyfile', type=Path, help='Path to a key file for SSL, .pem')
+        '-k', '--ssl-keyfile', type=Path,
+        help='Path to a SSL key file for HTTPS, .pem')
 
     arguments, _ = argument_parser.parse_known_args()
     arguments = vars(arguments)

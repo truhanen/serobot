@@ -10,6 +10,7 @@ setup(
     version='0.1.0',
     author='Tuukka Ruhanen',
     author_email='tuukka.t.ruhanen@gmail.com',
+    description='API & web UI for controlling a Raspberry Pi robot.',
     install_requires=[
         # Hardware control
         'psutil',
