@@ -93,7 +93,7 @@ password = mypassword2
 The web server can now be started with the installed script,
 
 ```
-pi@raspberrypi:~ $ start_serobot_server -a authorized_users.conf
+pi@raspberrypi:~ $ sudo .virtualenvs/serobot/bin/start_serobot_server -a authorized_users.conf
 ```
 
 In case of HTTPS (setup instructions [below](#secure-https-connection-with-lets-encrypthttpsletsencryptorg)), give the certificate files as additional arguments to the script, or give a single path argument pointing to a configuration file of the form
@@ -106,6 +106,10 @@ ssl_keyfile = /path/to/ssl/keyfile
 ```
 
 The web UI should now be accessible via a web browser at e.g. *http\://192.168.1.100* (HTTP, [LAN access](#ubuntu-pc--wifi-router-setup)) or *https\://your.domain.name* ([HTTPS](#secure-https-connection-setup-with-lets-encrypthttpsletsencryptorg), [Internet access](#internet-access)).
+
+#### Running without root privileges
+
+Root privileges are needed by the [rpi-ws281x library](https://github.com/rpi-ws281x/rpi-ws281x-python/blob/master/library/README.rst) that controls the RGB leds (see [issue](https://github.com/rpi-ws281x/rpi-ws281x-python/issues/9)), and for reading the certificate files for HTTPS. If those features are not needed, the web server can be started also without `sudo`.
 
 ## Platform setup
 
