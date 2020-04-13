@@ -163,6 +163,7 @@ class SerobotServer:
 
         # Setup routes
         app.router.add_get('/', self._index_handler)
+        app.router.add_get('/favicon', self._favicon_handler)
         app.router.add_post('/login', self._login_handler)
         app.router.add_get('/logout', self._logout_handler)
         app.router.add_get('/video', self._video_stream_handler)
@@ -258,6 +259,9 @@ class SerobotServer:
         else:
             filename = 'login.html'
         return self._create_response_from_html_file(filename)
+
+    async def _favicon_handler(self, _: web.Request):
+        return web.FileResponse(Path(__file__).parent / 'frontend' / 'dist' / 'favicon.ico')
 
     async def _login_handler(self, request):
         form = await request.post()
