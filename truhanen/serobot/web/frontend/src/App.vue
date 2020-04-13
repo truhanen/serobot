@@ -83,8 +83,7 @@
             },
 
             logout() {
-                this.write_log('Logout triggered');
-                // window.location.href = '/logout';
+                window.location.href = '/logout';
             },
 
             send_hardware_command(command) {

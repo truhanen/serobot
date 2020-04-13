@@ -245,13 +245,19 @@ class SerobotServer:
 
             await aio.sleep(.2)
 
+    @staticmethod
+    def _create_response_from_html_file(filename):
+        with open(Path(__file__).parent / 'frontend' / 'dist' / filename) as f:
+            text = f.read()
+        return web.Response(text=text, content_type='text/html')
+
     async def _index_handler(self, request: web.Request):
         username = await authorized_userid(request)
         if username:
-            file = 'index.html'
+            filename = 'index.html'
         else:
-            file = 'login.html'
-        return web.FileResponse(Path(__file__).parent / 'frontend' / 'dist' / file)
+            filename = 'login.html'
+        return self._create_response_from_html_file(filename)
 
     async def _login_handler(self, request):
         form = await request.post()
@@ -269,10 +275,7 @@ class SerobotServer:
 
     async def _logout_handler(self, request):
         await check_authorized(request)
-        response = web.Response(
-            text='You have been logged out',
-            content_type='text/html',
-        )
+        response = web.HTTPFound('/')
         await forget(request, response)
         return response
 
