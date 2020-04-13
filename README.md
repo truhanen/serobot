@@ -182,3 +182,65 @@ Depending on whether HTTP or HTTPS is used, forward ports 80 or 443 to the Raspb
 Now you should have two certificate *.pem* files in */etc/letsencrypt/live/[domain.name]/*.
 
 To keep the certificates renewed before they expire, keep the port 80 forwarded, and start the renewal background service with `sudo certbot renew`.
+
+### Playing sound & text-to-speech through a bluetooth speaker
+
+This feature is not yet included in this project, but here are some configuration instructions & command line usage examples for the Raspberry Pi Zero W.
+
+#### Connecting to a bluetooth speaker 
+
+1. Install [Bluetooth ALSA Audio backend](https://github.com/Arkq/bluez-alsa) with `sudo apt install bluealsa`.
+1. Start the backend service with `sudo service bluealsa start`.
+1. Make your bluetooth speaker discoverable.
+1. Start the interactive bluetooth control tool with `sudo bluetoothctl`.
+    - Start scanning for devices with `scan on`.
+    - List found bluetooth devices with `devices`.
+    - When the bluetooth speaker is found, pair and connect to it with commands `pair X`, `trust X`, and `connect X`, where `X` is the MAC address of the device, such as *04:FE:A1:99:4E:A8*.
+    - Exit with `exit`.
+1. To configure the bluealsa virtual PCM device, create file *~/.asoundrc* with contents
+    ```
+    defaults.bluealsa.interface "hci0"
+    defaults.bluealsa.device "X"
+    defaults.bluealsa.profile "a2dp"
+    defaults.bluealsa.delay 10000
+    ```
+    where `X` is again the MAC address of the bluetooth speaker.
+1. Try to play sound with the bluealsa device with
+    ```
+    aplay -D bluealsa /usr/share/sounds/alsa/Front_Center.wav
+    ```
+1. Later, to disconnect or connect again to the bluetooth speaker, use commands
+    ```
+    echo -e 'connect X\nexit\n' | sudo bluetoothctl
+    echo -e 'disconnect X\nexit\n' | sudo bluetoothctl
+    ```
+    where `X` is the MAC address of the bluetooth speaker.
+
+#### Text-to-speech
+
+Below are some installation instructions and simple usage examples for two alternative text-to-speech synthesizers.
+
+##### [Espeak](http://espeak.sourceforge.net/)
+
+Install with `sudo apt install espeak`.
+
+Speak through the bluealsa device with
+```
+espeak "Hello. I am a Raspberry Pi." -ven-us+f3 -p40 -s120 --stdout | aplay -D bluealsa
+```
+
+##### [SVOX Pico](https://packages.debian.org/buster/libttspico0)
+
+SVOX Pico may sound more natural than espeak, but also less clear in some cases.
+
+The required packages [are not available](https://bugs.launchpad.net/raspbian/+bug/1835974) in the repositories for Raspbian 10 (buster), but can be downloaded from archives.raspberrypi.org and installed manually with
+```
+wget http://archive.raspberrypi.org/debian/pool/main/s/svox/libttspico-utils_1.0+git20130326-3+rpi1_armhf.deb
+wget http://archive.raspberrypi.org/debian/pool/main/s/svox/libttspico0_1.0+git20130326-3+rpi1_armhf.deb
+sudo apt install -f ./libttspico0_1.0+git20130326-3+rpi1_armhf.deb ./libttspico-utils_1.0+git20130326-3+rpi1_armhf.deb
+```
+
+Speak with
+```
+pico2wave -w temp.wav "Hello. I am a Raspberry Pi." && aplay -D bluealsa temp.wav
+```
