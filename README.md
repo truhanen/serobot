@@ -60,15 +60,17 @@ bot.camera.tilt_value = 100
 bot.camera.take_picture('figure.jpg')
 
 # Do the same actions concurrently with awaitable methods.
-aio.run(aio.gather(
-    # Movement
-    bot.motors.async_move_forward(.5),
-    bot.motors.async_turn_right(1),
-    # Camera
-    bot.camera.async_set_pan_value(100),
-    bot.camera.async_set_tilt_value(100),
-    bot.camera.async_take_picture('figure.jpg'),
-))
+async def act():
+    await aio.gather(
+        # Movement
+        bot.motors.async_move_forward(.5),
+        bot.motors.async_turn_right(1),
+        # Camera
+        bot.camera.async_set_pan_value(100),
+        bot.camera.async_set_tilt_value(100),
+        bot.camera.async_take_picture('figure.jpg'),
+    )
+aio.run(act())
 ```
 
 ## Web server/UI configuration & usage
