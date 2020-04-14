@@ -12,7 +12,8 @@ from .hardware import(
     RCReceiver,
     DistanceSensor,
     LineTrackers,
-    ProximitySensors
+    ProximitySensors,
+    Speaker,
 )
 
 
@@ -39,6 +40,7 @@ class Serobot:
         self._distance_sensor = DistanceSensor()
         self._line_trackers = LineTrackers()
         self._proximity_sensors = ProximitySensors()
+        self._speaker = Speaker()
 
     @property
     def rpi(self):
@@ -75,6 +77,10 @@ class Serobot:
     @property
     def proximity_sensors(self):
         return self._proximity_sensors
+
+    @property
+    def speaker(self):
+        return self._speaker
 
     async def get_status(self) -> SerobotStatus:
         status = list(await aio.gather(

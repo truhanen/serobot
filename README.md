@@ -8,6 +8,7 @@ API & web UI for controlling a Raspberry Pi robot.
     - Camera movement & imaging
     - Buzzer
     - RGB leds
+    - Bluetooth speaker for text-to-speech
 - Web server & UI (Python aiohttp & Vue.js)
 
 ## Development platform
@@ -19,10 +20,13 @@ The package is currently being developed on the following system.
     - [Wiki page](https://www.waveshare.com/wiki/AlphaBot2-PiZero)
 - Raspberry Pi Zero W
     - [Product page](https://www.raspberrypi.org/products/raspberry-pi-zero-w/)
+- External bluetooth speaker
 - Raspbian GNU/Linux 10 (buster)
 - Python 3.7
 
 ## Installation
+
+In addition to the following installation steps, see the section [Platform setup](#platform-setup) for instructions on setting up the Raspberry Pi platform to get the different features to work as intended. 
 
 ### Python package
 
@@ -59,6 +63,9 @@ bot.camera.pan_value = 100
 bot.camera.tilt_value = 100
 bot.camera.take_picture('figure.jpg')
 
+# Text-to-speech
+bot.speaker.text_to_speech('Hello. I moved and took a picture.')
+
 # Do the same actions concurrently with awaitable methods.
 async def act():
     await aio.gather(
@@ -69,6 +76,9 @@ async def act():
         bot.camera.async_set_pan_value(100),
         bot.camera.async_set_tilt_value(100),
         bot.camera.async_take_picture('figure.jpg'),
+        # Text-to-speech
+        bot.speaker.async_text_to_speech(
+            'Hello. I am moving and taking a shaky picture.')
     )
 aio.run(act())
 ```
@@ -115,7 +125,7 @@ Root privileges are needed by the [rpi-ws281x library](https://github.com/rpi-ws
 
 ## Platform setup
 
-Below are listed some step-by-step instructions for setting up a functional platform with a Ubuntu PC & wifi.
+Below are listed the step-by-step instructions for setting up a functional platform with a Ubuntu PC & wifi.
 
 ### SD card setup
 
@@ -167,7 +177,7 @@ On the Raspberry Pi, run `sudo raspi-config` and enable *Interfacing Options* ->
 1. Create a virtualenv named *serobot* with `mkvirtualenv --python=/usr/bin/python3.7 serobot`.
 1. Afterwards, when installing & using Python packages, first activate the virtualenv with `workon serobot`.
 
-### Internet access
+### Internet access setup
 
 To access the Serobot web UI from the Internet, you need a domain name and a DNS service, and probably also a dynamic DNS setup.
 
@@ -185,9 +195,9 @@ Now you should have two certificate *.pem* files in */etc/letsencrypt/live/[doma
 
 To keep the certificates renewed before they expire, keep the port 80 forwarded, and start the renewal background service with `sudo certbot renew`.
 
-### Playing sound & text-to-speech through a bluetooth speaker
+### Bluetooth speaker & text-to-speech setup
 
-This feature is not yet included in this project, but here are some configuration instructions & command line usage examples for the Raspberry Pi Zero W.
+Before the `Serobot.speaker` can be used, an external speaker must be configured. Here are the setup instructions for a bluetooth speaker and the used text-to-speech synthesizer.
 
 #### Connecting to a bluetooth speaker 
 
@@ -197,30 +207,30 @@ This feature is not yet included in this project, but here are some configuratio
 1. Start the interactive bluetooth control tool with `sudo bluetoothctl`.
     - Start scanning for devices with `scan on`.
     - List found bluetooth devices with `devices`.
-    - When the bluetooth speaker is found, pair and connect to it with commands `pair X`, `trust X`, and `connect X`, where `X` is the MAC address of the device, such as *04:FE:A1:99:4E:A8*.
+    - When the bluetooth speaker is found, pair and connect to it with commands `pair X`, `trust X`, and `connect X`, where `X` is the MAC address of the bluetooth speaker, such as *04:FE:A1:99:4E:A8*.
     - Exit with `exit`.
-1. To configure the bluealsa virtual PCM device, create file *~/.asoundrc* with contents
+1. To configure the bluealsa virtual PCM device, create file */etc/asound.conf* with contents
     ```
     defaults.bluealsa.interface "hci0"
     defaults.bluealsa.device "X"
     defaults.bluealsa.profile "a2dp"
     defaults.bluealsa.delay 10000
     ```
-    where `X` is again the MAC address of the bluetooth speaker.
+    where `X` is the MAC address of the bluetooth speaker.
 1. Try to play sound with the bluealsa device with
     ```
     aplay -D bluealsa /usr/share/sounds/alsa/Front_Center.wav
     ```
 1. Later, to disconnect or connect again to the bluetooth speaker, use commands
     ```
-    echo -e 'connect X\nexit\n' | sudo bluetoothctl
     echo -e 'disconnect X\nexit\n' | sudo bluetoothctl
+    echo -e 'connect X\nexit\n' | sudo bluetoothctl
     ```
     where `X` is the MAC address of the bluetooth speaker.
 
-#### Text-to-speech
+#### Text-to-speech setup
 
-Below are some installation instructions and simple usage examples for two alternative text-to-speech synthesizers.
+Below are the installation instructions and simple command line usage examples for two alternative text-to-speech synthesizers. Only the first is required for the feature to work with `Serobot.speaker`.
 
 ##### [Espeak](http://espeak.sourceforge.net/)
 

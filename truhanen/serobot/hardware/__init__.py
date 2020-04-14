@@ -8,3 +8,4 @@ from .motors import Motors
 from .proximity_sensor import ProximitySensors
 from .raspberry_pi import RaspberryPi
 from .rc_receiver import RCReceiver, RCCode
+from .speaker import Speaker
