@@ -26,7 +26,8 @@ class Speaker:
         self._device_name = device_name
 
     def shell_command_espeak(
-            self, text: str, voice: str = 'en-us+m3', amplitude: int = 100,
+            self, text: str, voice_language: str = 'en-us',
+            voice_variant: str = 'm3', amplitude: int = 100,
             pitch: int = 60, speed: int = 150):
         """Form the shell command for speaking some text using the espeak
         synthesizer.
@@ -35,8 +36,11 @@ class Speaker:
         ----------
         text : str
             The text to be spoken.
-        voice : str
-            The espeak voice parameter.
+        voice_language : str
+            The voice language prefix of the espeak voice parameter.
+        voice_variant : str
+            The voice variant postfix of the espeak voice parameter. For
+            example 'm1', 'f4', 'klatt', or 'whisper'.
         amplitude : str
             The espeak amplitude parameter.
         pitch : int
@@ -49,6 +53,7 @@ class Speaker:
         shell_command : str
             The shell command for speaking the text through the speaker.
         """
+        voice = f'{voice_language}+{voice_variant}'
         shell_command = (
             f'espeak "{text}" -v{voice} -a{amplitude} -p{pitch} -s{speed} '
             f'--stdout | aplay -D {self._device_name}')
