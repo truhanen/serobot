@@ -2,10 +2,16 @@
 
 import time
 import smbus
+import logging
 
 # ============================================================================
 # Raspi PCA9685 16-Channel PWM Servo Driver
 # ============================================================================
+
+
+# Module-level logger
+logger = logging.getLogger(__name__)
+
 
 class PCA:
     # Registers/etc.
@@ -31,26 +37,21 @@ class PCA:
 
     _pwm_freq = 50
 
-    def __init__(self, address=0x40, debug=False):
+    def __init__(self, address=0x40):
         self.bus = smbus.SMBus(1)
         self.address = address
-        self.debug = debug
         self.reset()
         self._set_pwm_freq()
 
     def write(self, reg, value):
         """Write an 8-bit value to the specified register/address"""
         self.bus.write_byte_data(self.address, reg, value)
-        if self.debug:
-            pass
-#            print('I2C: Write {:#b} to register {:#b}'.format(value, reg))
+        logger.debug('I2C: Write {:#b} to register {:#b}'.format(value, reg))
 
     def read(self, reg):
         """Read an unsigned byte from the I2C device"""
         result = self.bus.read_byte_data(self.address, reg)
-        if self.debug:
-            pass
-#            print('I2C: Device {:#b} returned {:#b} from reg {:#b}'.format(self.address, result & 0xFF, reg))
+        logger.debug('I2C: Device {:#b} returned {:#b} from reg {:#b}'.format(self.address, result & 0xFF, reg))
         return result
 
     def set_mode_value(self, value):
@@ -69,13 +70,11 @@ class PCA:
             self.set_mode_value(old_mode & complement_bin_value)
 
     def reset(self):
-        if self.debug:
-            print('Resetting PCA9685')
+        logger.debug('Resetting PCA9685')
         self.set_mode_value(0b00000000)
 
     def sleep(self, sleep=True):
-        if self.debug:
-            print('Setting sleep {}'.format(sleep))
+        logger.debug('Setting sleep {}'.format(sleep))
         self.set_mode_bit(self.mode_bit_sleep, sleep)
         if not sleep:
             # Wait for oscillator to stabilize
@@ -88,8 +87,7 @@ class PCA:
         oscillator_freq = 25e6
         prescale_value = oscillator_freq / 4096 / self._pwm_freq
         prescale_value = int(round(prescale_value)) - 1
-        if self.debug:
-            print('Setting PWM frequency to {} Hz'.format(self._pwm_freq))
+        logger.debug('Setting PWM frequency to {} Hz'.format(self._pwm_freq))
 
         # Set SLEEP bit on for setting the PRE_SCALE register
         self.sleep()
@@ -115,8 +113,7 @@ class PCA:
         pulse: int
             Servo duty cycle in milliseconds. 1500 is center.
         """
-        if self.debug:
-            print('Setting servo {} pulse {}'.format(channel, pulse))
+        logger.debug('Setting servo {} pulse {}'.format(channel, pulse))
         period_us = 1 / self._pwm_freq * 1000000
         pulse = int(pulse * 4096 / period_us)
         self.set_pwm(channel, pulse)

@@ -26,6 +26,10 @@ from .user import User
 from .hardware_command import HardwareCommander
 
 
+# Module-level logger
+logger = logging.getLogger(__name__)
+
+
 class SerobotServer:
     def __init__(self, auth_file=None, ssl_certfile=None, ssl_keyfile=None):
         """
@@ -47,7 +51,6 @@ class SerobotServer:
         self._ssl_certfile = ssl_certfile
         self._ssl_keyfile = ssl_keyfile
 
-        self._log = self._create_logger()
         self._bot = Serobot()
         self._hardware_commander = HardwareCommander(self.bot)
 
@@ -84,7 +87,8 @@ class SerobotServer:
         tcp_site = web.TCPSite(
             app_runner, host='0.0.0.0', port=port, ssl_context=ssl_context)
         await tcp_site.start()
-        self.log.info(f'Serving the web app on {tcp_site.name}')
+
+        logger.info(f'Serving the web app on {tcp_site.name}')
 
         # Make sound once when everything is ready.
         # aio.create_task(self.bot.buzzer.async_on(duration=.05))
@@ -95,10 +99,6 @@ class SerobotServer:
                 await aio.sleep(1)
         finally:
             await app_runner.cleanup()
-
-    @property
-    def log(self) -> logging.Logger:
-        return self._log
 
     @property
     def bot(self) -> Serobot:
@@ -125,24 +125,6 @@ class SerobotServer:
     @property
     def hardware_command_queue(self) -> aio.Queue:
         return self._hardware_command_queue
-
-    def _create_logger(self) -> logging.Logger:
-        """Setup a Logger for this instance."""
-        logger = logging.getLogger(type(self).__name__)
-        logger.setLevel(logging.DEBUG)
-
-        log_handler = logging.StreamHandler()
-        log_handler.setFormatter(logging.Formatter(
-            '%(levelname)s'
-            '|%(asctime)s'
-            '|%(filename)s:%(lineno)d'
-            '|%(name)s'
-            '|%(funcName)s'
-            '|%(message)s'))
-        log_handler.setLevel(logging.DEBUG)
-        logger.addHandler(log_handler)
-
-        return logger
 
     def _create_application(self) -> web.Application:
         """Create and setup the web app."""
@@ -178,7 +160,7 @@ class SerobotServer:
 
     async def _status_response_worker(self, ws: web.WebSocketResponse):
         """Coroutine for sending hardware status via a websocket."""
-        self.log.info('Start sending status messages via the websocket.')
+        logger.info('Start sending status messages via the websocket.')
 
         while True:
             status = asdict(await self.bot.get_status())
@@ -188,11 +170,11 @@ class SerobotServer:
                 break
             await aio.sleep(1)
 
-        self.log.info('Stopped sending status messages to a client.')
+        logger.info('Stopped sending status messages to a client.')
 
     async def _log_response_worker(self, ws: web.WebSocketResponse):
         """Coroutine for sending log messages to the client via a websocket."""
-        self.log.info('Start sending log messages via the websocket.')
+        logger.info('Start sending log messages via the websocket.')
 
         while True:
             message = await self.client_log_queue.get()
@@ -203,25 +185,25 @@ class SerobotServer:
             else:
                 break
 
-        self.log.info('Stopped sending log messages via the websocket.')
+        logger.info('Stopped sending log messages via the websocket.')
 
     async def _hardware_command_worker(self):
         """Coroutine for handling hardware commands sent from the app."""
-        self.log.info('Start handling hardware commands.')
+        logger.info('Start handling hardware commands.')
 
         while True:
             # Wait for a command.
             message = await self.hardware_command_queue.get()
-            self.log.debug(f'Received HW command "{message}"')
+            logger.debug(f'Received HW command "{message}"')
             unconsumed_commands = await self.hardware_commander.command(message)
             if unconsumed_commands:
-                self.log.debug(f'Unknown hardware commands: {unconsumed_commands}')
+                logger.debug(f'Unknown hardware commands: {unconsumed_commands}')
 
     async def _camera_capture_worker(self):
         """Coroutine for continuously capturing new images by the camera."""
         jpg_stream = io.BytesIO()
 
-        self.log.info('Start capturing camera images.')
+        logger.info('Start capturing camera images.')
         await self.client_log_queue.put('Server is capturing camera')
 
         while True:
@@ -291,7 +273,7 @@ class SerobotServer:
         response.content_type = f'multipart/x-mixed-replace;boundary=ffserver'
         await response.prepare(request)
 
-        self.log.info(f'Start streaming camera images to {request.remote}.')
+        logger.info(f'Start streaming camera images to {request.remote}.')
 
         try:
             while True:
@@ -317,7 +299,7 @@ class SerobotServer:
             # The connection was closed by the client.
             pass
 
-        self.log.info(f'Stopped streaming camera images to {request.remote}.')
+        logger.info(f'Stopped streaming camera images to {request.remote}.')
 
         return response
 
@@ -328,7 +310,7 @@ class SerobotServer:
         ws = web.WebSocketResponse()
         await ws.prepare(request)
 
-        self.log.info(f'Open a websocket connection to {request.remote}.')
+        logger.info(f'Open a websocket connection to {request.remote}.')
 
         # Start background tasks that feed data to the client via the websocket.
         aio.create_task(self._status_response_worker(ws))
@@ -342,10 +324,10 @@ class SerobotServer:
                 elif 'command' in data:
                     self.hardware_command_queue.put_nowait(data['command'])
                 else:
-                    self.log.info(f'Unrecognized message: {msg.data}')
+                    logger.debug(f'Unrecognized message: {msg.data}')
             elif msg.type == WSMsgType.ERROR:
-                self.log.info(f'Websocket connection closed with exception {ws.exception()}')
+                logger.info(f'Websocket connection closed with exception {ws.exception()}')
 
-        self.log.info(f'Closed websocket connection to {request.remote}')
+        logger.info(f'Closed websocket connection to {request.remote}')
 
         return ws

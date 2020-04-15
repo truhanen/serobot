@@ -1,10 +1,15 @@
 
 from enum import Enum
 import asyncio as aio
+import logging
 
 from rpi_ws281x import PixelStrip
 
 from ._pin_numbers import bcm_led
+
+
+# Module-level logger
+logger = logging.getLogger(__name__)
 
 
 class RgbValue(Enum):
@@ -32,7 +37,7 @@ class Leds:
             self._leds = PixelStrip(self.led_count, bcm_led, dma=self.dma)
             self._leds.begin()
         except RuntimeError:
-            print('Could not initialize LEDs. You may have to run as root.')
+            logger.error('Could not initialize LEDs. You may have to run as root.')
             self._leds = None
 
         self.brightness = 0

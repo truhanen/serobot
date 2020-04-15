@@ -2,6 +2,12 @@
 import asyncio as aio
 import subprocess
 from typing import Optional
+import logging
+import textwrap
+
+
+# Module-level logger
+logger = logging.getLogger(__name__)
 
 
 class Speaker:
@@ -53,12 +59,15 @@ class Speaker:
                             stdout_data: Optional[bytes] = None,
                             stderr_data: Optional[bytes] = None):
         """Check whether a process completed without problems."""
+        def indent(text):
+            return textwrap.indent(text, '    ')
         if returncode != 0:
-            print(f'[{shell_command!r} exited with {returncode}]')
-            if stdout_data is not None:
-                print(f'[stdout]\n{stdout_data.decode()}')
-            if stderr_data is not None:
-                print(f'[stderr]\n{stderr_data.decode()}')
+            error_message = f'Shell command "{shell_command!r}" exited with {returncode}'
+            if stdout_data:
+                error_message += f'\nstdout:\n{indent(stdout_data.decode())}'
+            if stderr_data:
+                error_message += f'\nstderr:\n{indent(stderr_data.decode())}'
+            logger.error(error_message)
 
     def text_to_speech(self, text: str, **kwargs):
         """Speak some text using this Speaker.
@@ -71,13 +80,16 @@ class Speaker:
             Keyword arguments to be passed to Speaker.shell_command_espeak()
         """
         shell_command = self.shell_command_espeak(text, **kwargs)
-        process = subprocess.run(shell_command, capture_output=True, shell=True)
+        process = subprocess.run(shell_command, shell=True,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self._check_shell_output(shell_command, process.returncode,
                                  process.stdout, process.stderr)
 
     async def async_text_to_speech(self, text: str, **kwargs):
         shell_command = self.shell_command_espeak(text, **kwargs)
-        process = await aio.create_subprocess_shell(shell_command, shell=True)
+        process = await aio.create_subprocess_shell(
+            shell_command, shell=True, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         # Wait for the process to terminate.
         stdout_data, stderr_data = await process.communicate()
         self._check_shell_output(shell_command, process.returncode,

@@ -3,8 +3,18 @@ import asyncio as aio
 from pathlib import Path
 from argparse import ArgumentParser, RawTextHelpFormatter
 from configparser import ConfigParser
+import logging
 
 from truhanen.serobot.web.serobot_server import SerobotServer
+
+
+# Module-level logger
+logger = logging.getLogger(__name__)
+
+
+def configure_logging(level: str):
+    logging_format = '{levelname}|{asctime}|{name}|{funcName}|{message}'
+    logging.basicConfig(format=logging_format, level=level, style='{')
 
 
 def parse_arguments():
@@ -12,7 +22,7 @@ def parse_arguments():
 
     argument_parser.add_argument(
         'config_file', nargs='?', type=Path,
-        help='A configuration file that lists the other arguments.\n'
+        help='A configuration file that lists the other path arguments.\n'
              'See README.md for details.')
     argument_parser.add_argument(
         '-a', '--auth-file', type=Path,
@@ -24,6 +34,10 @@ def parse_arguments():
     argument_parser.add_argument(
         '-k', '--ssl-keyfile', type=Path,
         help='Path to a SSL key file for HTTPS, .pem')
+    argument_parser.add_argument(
+        '-l', '--log-level', default='INFO',
+        help='The desired logging level as a name supported by the Python\'s\n'
+             'built-in logging module. Defaults to INFO.')
 
     arguments, _ = argument_parser.parse_known_args()
     arguments = vars(arguments)
@@ -42,6 +56,13 @@ def parse_arguments():
     return arguments
 
 
-if __name__ == '__main__':
-    server = SerobotServer(**parse_arguments())
+def main():
+    arguments = parse_arguments()
+    configure_logging(arguments.pop('log_level'))
+    logger.info(f'Starting SerobotServer with arguments {arguments}')
+    server = SerobotServer(**arguments)
     aio.run(server.start())
+
+
+if __name__ == '__main__':
+    main()
