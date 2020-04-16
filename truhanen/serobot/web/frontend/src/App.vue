@@ -6,8 +6,8 @@
 
         <StatusInfoTable id="status_info_table" ref="status_info_table"/>
 
-        <input type="button" id="button_reboot" value="Reboot" @click="confirm_reboot"/>
-        <input type="button" id="button_logout" value="Logout" @click="logout"/>
+        <input type="button" class="button_upper_corner" id="button_reboot" value="Reboot" @click="confirm_reboot"/>
+        <input type="button" class="button_upper_corner" id="button_logout" value="Logout" @click="logout"/>
 
         <ArrowButtonSet id="movement_button_set" class="arrow_button_set"
                         label_up="Forward (&uarr;)"
@@ -292,21 +292,21 @@
         left: calc(100% - 5px - 30vmin);
     }
 
-    /* Reboot button */
-    #button_reboot {
-        width: 10vmin;
+    /* Buttons in the upper corner */
+    .button_upper_corner {
+        width: 15vmin;
         height: 6vmin;
         position: fixed;
-        left: calc(100% - 5px - 10vmin);
+        left: calc(100% - 5px - 15vmin);
+    }
+
+    /* Reboot button */
+    #button_reboot {
         top: 5px;
     }
 
     /* Logout button */
     #button_logout {
-        width: 10vmin;
-        height: 6vmin;
-        position: fixed;
-        left: calc(100% - 5px - 10vmin);
         top: calc(10px + 6vmin);
     }
 

@@ -1,16 +1,19 @@
 <!doctype html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="/favicon">
-    <title>Login</title>
+    <title>Serobot Login</title>
 </head>
-<body>
-    <p>You need to login.</p>
+<body style="text-align: center">
+    <h3>Login</h3>
     <form action='/login' method='post'>
-        Login:
-        <input type='text' name='username'>
-        Password:
-        <input type='password' name='password'>
+        Username<br/>
+        <input type='text' name='username'><br/>
+        <br/>
+        Password<br/>
+        <input type='password' name='password'><br/>
+        <br/>
         <input type='submit' value='Login'>
     </form>
 </body>
