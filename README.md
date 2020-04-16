@@ -11,6 +11,10 @@ Python API & web UI for controlling a Raspberry Pi robot.
     - Bluetooth speaker for text-to-speech
 - Web server & UI (Python aiohttp & Vue.js)
 
+Robot platform | Web UI screenshot
+---|---
+ ![AlphaBot2](../media/media/alphabot.jpg?raw=true) | ![Screenshot](../media/media/screenshot.jpg?raw=true)
+
 ## Development platform
 
 The package is currently being developed on the following system.
