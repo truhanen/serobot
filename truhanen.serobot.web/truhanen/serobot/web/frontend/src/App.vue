@@ -128,36 +128,34 @@
      * Create and setup a websocket connection.
      */
     function setup_websocket(vm) {
-        let try_url = function(ws_url) {
-            let socket = new WebSocket(ws_url);
-            if (socket) {
-                socket.onopen = function() {
-                    vm.write_log('Websocket connection opened: ' + ws_url);
-                };
-                socket.onmessage = function(msg) {
-                    let data = JSON.parse(msg.data);
-                    if ('status' in data) {
-                        vm.write_status_info(data['status'])
-                    }
-                    else if ('log' in data) {
-                        vm.write_log(data['log']);
-                    }
-                };
-                socket.onclose = function() {
-                    vm.write_log('Websocket connection closed.');
-                };
-            }
-            else {
-                vm.write_log('Failed to open a websocket connection.');
-            }
-            return socket;
-        };
+        // Determine websocket url depending on protocol.
+        let ws_protocol = 'wss://';
+        if (location.protocol !== 'https:') {
+            ws_protocol = 'ws://';
+        }
+        let ws_url = ws_protocol + location.host + '/ws';
 
-        const wss_url = 'wss://' + location.host + '/ws';
-        const ws_url = 'ws://' + location.host + '/ws';
-        let socket = try_url(wss_url);
-        if (!socket) {
-            socket = try_url(ws_url)
+        // Create and configure the websocket connection.
+        let socket = new WebSocket(ws_url);
+        if (socket) {
+            socket.onopen = function() {
+                vm.write_log('Websocket connection opened: ' + ws_url);
+            };
+            socket.onmessage = function(msg) {
+                let data = JSON.parse(msg.data);
+                if ('status' in data) {
+                    vm.write_status_info(data['status'])
+                }
+                else if ('log' in data) {
+                    vm.write_log(data['log']);
+                }
+            };
+            socket.onclose = function() {
+                vm.write_log('Websocket connection closed.');
+            };
+        }
+        else {
+            vm.write_log('Failed to open a websocket connection.');
         }
 
         return socket;
