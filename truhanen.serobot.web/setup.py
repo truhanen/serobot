@@ -2,22 +2,18 @@
 from setuptools import setup, find_namespace_packages
 
 
-# TODO Optionally build the web frontend?
+# TODO Build the web frontend
 
 
 setup(
-    name='truhanen.serobot',
+    name='truhanen.serobot.web',
     version='0.1.0',
     author='Tuukka Ruhanen',
     author_email='tuukka.t.ruhanen@gmail.com',
-    description='API & web UI for controlling a Raspberry Pi robot.',
+    description='Web server & UI for controlling a Raspberry Pi robot.',
     install_requires=[
-        # Hardware control
-        'psutil',
-        'smbus',
-        'RPi.GPIO',
-        'picamera',
-        'rpi-ws281x',
+        # Serobot API
+        'truhanen.serobot.api',
         # Web server
         'aiohttp',
         'aiohttp_security',

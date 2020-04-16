@@ -5,7 +5,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from configparser import ConfigParser
 import logging
 
-from truhanen.serobot.web.serobot_server import SerobotServer
+from truhanen.serobot.web import SerobotServer
 
 
 # Module-level logger

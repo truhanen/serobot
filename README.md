@@ -1,6 +1,6 @@
 # serobot
 
-API & web UI for controlling a Raspberry Pi robot.
+Python API & web UI for controlling a Raspberry Pi robot.
 
 ### Features
 - Support for most of the devices of the development platform, including
@@ -28,18 +28,21 @@ The package is currently being developed on the following system.
 
 In addition to the following installation steps, see the section [Platform setup](#platform-setup) for instructions on setting up the Raspberry Pi platform to get the different features to work as intended. 
 
-### Python package
+### Python API
 
 1. Clone this project on a Raspberry Pi.
 1. Activate a Python 3.7 virtualenv (setup instructions [below](#python-environment-setup)).
-1. In the project root directory run `pip install .`
+1. In the project root directory run `pip install truhanen.serobot.api`.
 
-### Web UI
+### Web server & UI
 
-Building the web interface requires Node.js/npm installation ([download page](https://www.npmjs.com/get-npm)), possibly on an external system.
+1. Install the [Python API](#python-api).
+1. In the project root directory run `pip install -e truhanen.serobot.web`.
 
-1. In the directory *truhanen/serobot/web/frontend*, run `npm run build`.
-1. If on an external system, copy the created *dist* directory to the respective path on the Raspberry Pi.
+The web UI also requires the frontend to be built using a Node.js/npm installation ([download page](https://www.npmjs.com/get-npm)). This can also be done on an external system to preserve the resources on the Raspberry Pi.
+
+1. In the project root directory run `npm run build --prefix ./truhanen.serobot.web/truhanen/serobot/web/frontend/`.
+1. If on an external system, copy the created *dist* directory from *truhanen.serobot.web/truhanen/serobot/web/frontend* to the respective path on the Raspberry Pi.
 
 ## API example
 
@@ -47,7 +50,7 @@ Building the web interface requires Node.js/npm installation ([download page](ht
 import time
 import asyncio as aio
 
-from truhanen.serobot import Serobot
+from truhanen.serobot.api import Serobot
 
 bot = Serobot()
 

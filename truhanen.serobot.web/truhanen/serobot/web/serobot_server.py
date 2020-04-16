@@ -20,7 +20,8 @@ from aiohttp_security import (
     check_permission, check_authorized,
 )
 
-from .. import Serobot
+from truhanen.serobot.api import Serobot
+
 from .authorization import DictionaryAuthorizationPolicy, check_credentials
 from .user import User
 from .hardware_command import HardwareCommander
