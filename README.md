@@ -40,13 +40,16 @@ In addition to the following installation steps, see the section [Platform setup
 
 ### Web server & UI
 
+The web UI requires the frontend to be built using a Node.js/npm installation ([download page](https://www.npmjs.com/get-npm)). To preserve the resources on the Raspberry Pi, this can optionally be done on an external system as follows.
+
+1. In the project root directory run `python truhanen.serobot.web/setup.py build_frontend`.
+1. Copy the frontend build directory to the Raspberry Pi, e.g. with `rsync --exclude node_modules -a ./ pi@raspberrypi:/project/root/directory`.
+
+Whether or not the optional step above was done, finish the installation on the Raspberry Pi.
+
 1. Install the [Python API](#python-api).
-1. In the project root directory run `pip install -e truhanen.serobot.web`.
-
-The web UI also requires the frontend to be built using a Node.js/npm installation ([download page](https://www.npmjs.com/get-npm)). This can also be done on an external system to preserve the resources on the Raspberry Pi.
-
-1. In the project root directory run `npm run build --prefix ./truhanen.serobot.web/truhanen/serobot/web/frontend/`.
-1. If on an external system, copy the created *dist* directory from *truhanen.serobot.web/truhanen/serobot/web/frontend* to the respective path on the Raspberry Pi.
+1. Keep the Python 3.7 virtualenv activated.
+1. In the project root directory run `pip install truhanen.serobot.web`. This will require Node.js/npm if the frontend has not been built yet.
 
 ## API example
 
