@@ -133,6 +133,23 @@ The web UI should now be accessible via a web browser at e.g. *http\://192.168.1
 
 Root privileges are needed by the [rpi-ws281x library](https://github.com/rpi-ws281x/rpi-ws281x-python/blob/master/library/README.rst) that controls the RGB leds (see [issue](https://github.com/rpi-ws281x/rpi-ws281x-python/issues/9)), and for reading the certificate files for HTTPS. If those features are not needed, the web server can be started also without `sudo`.
 
+#### Running the server on system startup
+
+1. Create file *~/tmux_start_serobot_server.sh* with contents
+    ```
+    #!/bin/bash
+    # Create a tmux session and run the server startup script.
+    tmux new-session -d -s serobot 'sudo /home/pi/.virtualenvs/serobot/bin/start_serobot_server /home/pi/serobot_server.conf'
+    # Split the tmux window and run the DDNS client. Optional, depends on configuration.
+    tmux split-window '/home/pi/.virtualenvs/ddnsclient/bin/truhanen_ddnsclient_service /home/pi/domains.conf'
+    ```
+1. Add the following lines to the file */etc/rc.local*.
+    ```
+    # Start Serobot server in a tmux session
+    sudo -u pi bash /home/pi/tmux_start_serobot_server.sh &
+    ```
+1. Afterwards, if you want to check the status of the processes, attach to the tmux session with `tmux attach -t serobot`.
+
 ## Platform setup
 
 Below are listed the step-by-step instructions for setting up a functional platform with a Ubuntu PC & wifi.
