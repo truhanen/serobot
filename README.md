@@ -36,7 +36,7 @@ In addition to the following installation steps, see the section [Platform setup
 
 1. Clone this project on a Raspberry Pi.
 1. Activate a Python 3.7 virtualenv (setup instructions [below](#python-environment-setup)).
-1. In the project root directory run `pip install truhanen.serobot.api`.
+1. In the project root directory run `pip install ./truhanen.serobot.api`.
 
 ### Web server & UI
 
@@ -49,7 +49,7 @@ Whether or not the optional step above was done, finish the installation on the 
 
 1. Install the [Python API](#python-api).
 1. Keep the Python 3.7 virtualenv activated.
-1. In the project root directory run `pip install truhanen.serobot.web`. This will require Node.js/npm if the frontend has not been built yet.
+1. In the project root directory run `pip install ./truhanen.serobot.web`. This will require Node.js/npm if the frontend has not been built yet.
 
 ## API example
 
