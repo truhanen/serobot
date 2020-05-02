@@ -2,38 +2,33 @@
 import time
 import asyncio as aio
 
-import RPi.GPIO as GPIO
-
-from ._pin_numbers import (
-    bcm_ultrasonic_sensor,
-    bcm_ultrasonic_emitter
-)
+from .bcm_channel import BcmChannel
+from .gpio import GpioOutput, GpioInput, GpioState
 
 
 class DistanceSensor:
     def __init__(self):
-        GPIO.setup(bcm_ultrasonic_emitter, GPIO.OUT, initial=GPIO.LOW)
-        GPIO.setup(bcm_ultrasonic_sensor, GPIO.IN)
+        self._emitter = GpioOutput(BcmChannel.ultrasonic_emitter, initial=GpioState.LOW)
+        self._sensor = GpioInput(BcmChannel.ultrasonic_sensor)
 
     def get_distance(self):
-        """Get distance in meters.
+        if self._sensor.state == GpioState.UNKNOWN:
+            return 0
 
-        Note that this Python implementation may be rather unreliable.
-        """
         # Emit sound.
         emit_time = time.time()
-        GPIO.output(bcm_ultrasonic_emitter, GPIO.HIGH)
+        self._emitter.state = GpioState.HIGH
         time.sleep(.000015)
-        GPIO.output(bcm_ultrasonic_emitter, GPIO.LOW)
+        self._emitter.state = GpioState.LOW
 
         # Wait that the primary wave is not detected anymore.
-        while not GPIO.input(bcm_ultrasonic_sensor):
+        while self._sensor.state == GpioState.LOW:
             # Guard against faults.
             if time.time() - emit_time >= 1:
                 return -1
 
         # Measure the time it takes for the reflected sound to return
-        while GPIO.input(bcm_ultrasonic_sensor):
+        while self._sensor.state == GpioState.HIGH:
             # Guard against faults.
             if time.time() - emit_time >= 1:
                 return -1

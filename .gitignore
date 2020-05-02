@@ -5,6 +5,7 @@ truhanen.serobot.web/truhanen/serobot/web/frontend/node_modules
 truhanen.serobot.web/truhanen/serobot/web/frontend/dist
 build
 dist
+__pycache__
 
 # Files
 *.egg-info

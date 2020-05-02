@@ -1,16 +1,8 @@
 
 import asyncio as aio
 
-import RPi.GPIO as GPIO
-
-from ._pin_numbers import (
-    bcm_right_motor_pwm,
-    bcm_left_motor_pwm,
-    bcm_right_motor_1,
-    bcm_right_motor_2,
-    bcm_left_motor_1,
-    bcm_left_motor_2
-)
+from .bcm_channel import BcmChannel
+from .gpio import GpioOutput, GpioPwm, GpioState
 
 
 class Motors:
@@ -20,25 +12,22 @@ class Motors:
     dc_turn = 30  # Duty cycle for turning
 
     def __init__(self):
-        # Setup outputs
-        output_channels = [
-            bcm_left_motor_1,
-            bcm_left_motor_2,
-            bcm_right_motor_1,
-            bcm_right_motor_2,
-            bcm_left_motor_pwm,
-            bcm_right_motor_pwm,
-        ]
-        GPIO.setup(output_channels, GPIO.OUT, initial=GPIO.LOW)
+        # Setup outputs.
+        self._output_left_1 = GpioOutput(BcmChannel.motor_left_1, initial=GpioState.LOW)
+        self._output_left_2 = GpioOutput(BcmChannel.motor_left_2, initial=GpioState.LOW)
+        self._output_right_1 = GpioOutput(BcmChannel.motor_right_1, initial=GpioState.LOW)
+        self._output_right_2 = GpioOutput(BcmChannel.motor_right_2, initial=GpioState.LOW)
 
         # Setup PWMs
-        self._right_motor_pwm = GPIO.PWM(
-            bcm_right_motor_pwm, self.pwm_freq)
-        self._left_motor_pwm = GPIO.PWM(
-            bcm_left_motor_pwm, self.pwm_freq)
+        self._pwm_left = GpioPwm(
+            BcmChannel.motor_left_pwm, frequency=self.pwm_freq,
+            duty_cycle=self.dc_move)
+        self._pwm_right = GpioPwm(
+            BcmChannel.motor_right_pwm, frequency=self.pwm_freq,
+            duty_cycle=self.dc_move)
 
-        self._right_motor_pwm.start(self.dc_move)
-        self._left_motor_pwm.start(self.dc_move)
+        self._pwm_left.start()
+        self._pwm_right.start()
 
     def __del__(self):
         self.stop()
@@ -52,33 +41,33 @@ class Motors:
             the motor to go backwards.
         """
         # Default values when left == 0, right == 0
-        left_1_state = GPIO.LOW
-        left_2_state = GPIO.LOW
-        right_1_state = GPIO.LOW
-        right_2_state = GPIO.LOW
+        left_1_state = GpioState.LOW
+        left_2_state = GpioState.LOW
+        right_1_state = GpioState.LOW
+        right_2_state = GpioState.LOW
 
         if left > 0 and left <= 100:
-            left_1_state = GPIO.LOW
-            left_2_state = GPIO.HIGH
+            left_1_state = GpioState.LOW
+            left_2_state = GpioState.HIGH
         elif left < 0 and left >= -100:
-            left_1_state = GPIO.HIGH
-            left_2_state = GPIO.LOW
+            left_1_state = GpioState.HIGH
+            left_2_state = GpioState.LOW
 
         if right > 0 and right <= 100:
-            right_1_state = GPIO.LOW
-            right_2_state = GPIO.HIGH
+            right_1_state = GpioState.LOW
+            right_2_state = GpioState.HIGH
         elif right < 0 and right >= -100:
-            right_1_state = GPIO.HIGH
-            right_2_state = GPIO.LOW
+            right_1_state = GpioState.HIGH
+            right_2_state = GpioState.LOW
 
-        self._left_motor_pwm.ChangeDutyCycle(abs(left))
-        self._right_motor_pwm.ChangeDutyCycle(abs(right))
+        self._pwm_left.duty_cycle = abs(left)
+        self._pwm_right.duty_cycle = abs(right)
 
-        GPIO.output(*zip(
-            (bcm_left_motor_1, left_1_state),
-            (bcm_left_motor_2, left_2_state),
-            (bcm_right_motor_1, right_1_state),
-            (bcm_right_motor_2, right_2_state),
+        GpioOutput.set_multiple(*zip(
+            (self._output_left_1, left_1_state),
+            (self._output_left_2, left_2_state),
+            (self._output_right_1, right_1_state),
+            (self._output_right_2, right_2_state),
         ))
 
     def stop(self):

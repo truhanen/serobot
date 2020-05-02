@@ -1,14 +1,13 @@
 
 import asyncio as aio
 
-import RPi.GPIO as GPIO
-
-from ._pin_numbers import bcm_buzz
+from .bcm_channel import BcmChannel
+from .gpio import GpioOutput, GpioState
 
 
 class Buzzer:
     def __init__(self):
-        GPIO.setup(bcm_buzz, GPIO.OUT, initial=GPIO.LOW)
+        self._output = GpioOutput(BcmChannel.buzzer, initial=GpioState.LOW)
         self._on = False
 
     @property
@@ -23,11 +22,8 @@ class Buzzer:
         value : bool
             The state of the buzzer.
         """
-        if value:
-            GPIO.output(bcm_buzz, GPIO.HIGH)
-        else:
-            GPIO.output(bcm_buzz, GPIO.LOW)
         self._on = value
+        self._output.state = GpioState.HIGH if value else GpioState.LOW
 
     async def async_on(self, duration=.05):
         """Set the buzzer on for a period of time.

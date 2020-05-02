@@ -1,9 +1,17 @@
 
 from functools import partial
 import asyncio as aio
+import logging
+from typing import Union
 
 from ._pca import PCA  # PCA9685 driver from the AlphaBot2 demo package
-from picamera import PiCamera
+try:
+    import picamera
+except ModuleNotFoundError:
+    picamera = None
+
+
+logger = logging.getLogger(__name__)
 
 
 class Camera:
@@ -23,16 +31,24 @@ class Camera:
         self._tilt_value = None
         self._pwm = PCA(self.i2c_camera_servo_address)
 
-        # Setup camera.
-        # Resolution 1640x1232, 4:3, full FOV, 2x2 binning
-        # Use low framerate for better low-light images
-        self._camera = PiCamera(resolution=(1640, 1232), framerate=5)
-        self._camera.exposure_mode = 'night'
-        # self._camera.shutter_speed = 1000000
-        # self._camera.exposure_compensation = 25
-        # self._camera.iso = 800
+        if picamera is not None:
+            # Setup camera.
+            # Resolution 1640x1232, 4:3, full FOV, 2x2 binning.
+            # Use low framerate for better low-light images.
+            self._camera = picamera.PiCamera(resolution=(1640, 1232), framerate=5)
 
-        self._camera.start_preview()
+            # Set camera settings.
+            self._camera.exposure_mode = 'night'  # Good for indoors
+            # self._camera.shutter_speed = 1000000
+            # self._camera.exposure_compensation = 25
+            # self._camera.iso = 800
+
+            self._camera.start_preview()
+        else:
+            logger.warning('Module picamera is missing. The Camera instance '
+                           'will not be fully functional.')
+            self._camera = None
+
         self.pan_value = self.pan_center_value
         self.tilt_value = self.tilt_center_value
 
@@ -40,7 +56,7 @@ class Camera:
         self.set_to_center()
 
     @property
-    def camera(self):
+    def camera(self) -> Union['picamera.PiCamera', None]:
         return self._camera
 
     @property
@@ -79,7 +95,10 @@ class Camera:
 
     def take_picture(self, output, **kwargs):
         """Take a picture with the camera"""
-        return self._camera.capture(output, **kwargs)
+        if self.camera is not None:
+            self.camera.capture(output, **kwargs)
+        else:
+            logger.warning('Picture not taken due to missing picamera.')
 
     async def async_set_pan_value(self, value):
         return await aio.get_running_loop().run_in_executor(

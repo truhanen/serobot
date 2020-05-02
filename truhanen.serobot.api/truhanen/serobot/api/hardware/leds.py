@@ -3,9 +3,12 @@ from enum import Enum
 import asyncio as aio
 import logging
 
-from rpi_ws281x import PixelStrip
+try:
+    import rpi_ws281x
+except ModuleNotFoundError:
+    rpi_ws281x = None
 
-from ._pin_numbers import bcm_led
+from .bcm_channel import BcmChannel
 
 
 # Module-level logger
@@ -29,15 +32,23 @@ class Leds:
     default_on_brightness = 50
 
     def __init__(self):
-        self._leds = None
         self._brightness = None
         self._rgb_values = [None] * self.led_count
 
-        try:
-            self._leds = PixelStrip(self.led_count, bcm_led, dma=self.dma)
-            self._leds.begin()
-        except RuntimeError:
-            logger.error('Could not initialize LEDs. You may have to run as root.')
+        # Initialize the LED interface.
+        failed_message = 'The Leds instance will have no physical functionality.'
+        if rpi_ws281x is not None:
+            try:
+                self._leds = rpi_ws281x.PixelStrip(
+                    self.led_count, BcmChannel.leds, dma=self.dma)
+                self._leds.begin()
+            except RuntimeError:
+                logger.warning(
+                    'Could not initialize rpi_ws281.PixelStrip. You may have '
+                    'to run as root. ' + failed_message)
+                self._leds = None
+        else:
+            logger.warning('Module rpi_ws281x is missing. ' + failed_message)
             self._leds = None
 
         self.brightness = 0
@@ -52,6 +63,8 @@ class Leds:
         """Apply the changes made by the set methods."""
         if self._leds is not None:
             self._leds.show()
+        else:
+            logger.info('Leds not fully initialized. Display not physically updated.')
 
     @property
     def rgb(self):
@@ -88,6 +101,8 @@ class Leds:
             if self._leds is not None:
                 self._leds.setPixelColorRGB(position, *rgb)
             self._rgb_values[position] = rgb
+        if self._leds is None:
+            logger.info('Leds not fully initialized. RGB not physically changed.')
 
     @property
     def brightness(self):
@@ -109,6 +124,9 @@ class Leds:
         """
         if self._leds is not None:
             self._leds.setBrightness(value)
+        else:
+            logger.info('Leds not fully initialized. Brightness not physically '
+                        'changed.')
         self._brightness = value
 
     @property

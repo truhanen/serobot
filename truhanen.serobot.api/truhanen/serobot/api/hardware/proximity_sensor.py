@@ -1,18 +1,14 @@
 
 import asyncio as aio
 
-import RPi.GPIO as GPIO
-
-from ._pin_numbers import (
-    bcm_left_ir_proximity_sensor,
-    bcm_right_ir_proximity_sensor
-)
+from .bcm_channel import BcmChannel
+from .gpio import GpioInput, GpioPull, GpioState
 
 
 class ProximitySensors:
     def __init__(self):
-        GPIO.setup(bcm_left_ir_proximity_sensor, GPIO.IN, GPIO.PUD_UP)
-        GPIO.setup(bcm_right_ir_proximity_sensor, GPIO.IN, GPIO.PUD_UP)
+        self._left_sensor = GpioInput(BcmChannel.proximity_sensor_left, pull=GpioPull.UP)
+        self._right_sensor = GpioInput(BcmChannel.proximity_sensor_right, pull=GpioPull.UP)
 
     def get_left_proximity(self):
         """
@@ -21,7 +17,7 @@ class ProximitySensors:
         triggered : bool
             True if the left sensor is triggered.
         """
-        return GPIO.input(bcm_left_ir_proximity_sensor) == 0
+        return self._left_sensor.state == GpioState.LOW
 
     def get_right_proximity(self):
         """
@@ -30,7 +26,7 @@ class ProximitySensors:
         triggered : bool
             True if the right sensor is triggered.
         """
-        return GPIO.input(bcm_right_ir_proximity_sensor) == 0
+        return self._right_sensor.state == GpioState.LOW
 
     async def async_get_left_proximity(self):
         return await aio.get_running_loop().run_in_executor(

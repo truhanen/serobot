@@ -5,7 +5,7 @@ import smbus
 import logging
 
 # ============================================================================
-# Raspi PCA9685 16-Channel PWM Servo Driver
+# Raspberry Pi PCA9685 16-Channel PWM Servo Driver
 # ============================================================================
 
 
@@ -38,27 +38,43 @@ class PCA:
     _pwm_freq = 50
 
     def __init__(self, address=0x40):
-        self.bus = smbus.SMBus(1)
+        try:
+            self.bus = smbus.SMBus(1)
+        except PermissionError:
+            logger.warning('Caught a PermissionError on connecting to a I2C '
+                           'device interface. The PCA instance (camera tilt/pan) '
+                           'will have no physical functionality.')
+            self.bus = None
         self.address = address
         self.reset()
         self._set_pwm_freq()
 
     def write(self, reg, value):
         """Write an 8-bit value to the specified register/address"""
-        self.bus.write_byte_data(self.address, reg, value)
-        logger.debug('I2C: Write {:#b} to register {:#b}'.format(value, reg))
+        log_message = 'I2C: Write {:#b} to register {:#b}.'.format(value, reg)
+        if self.bus is not None:
+            self.bus.write_byte_data(self.address, reg, value)
+            logger.debug(log_message)
+        else:
+            logger.info(f'Missing SMBus instance. Failed {log_message}')
 
     def read(self, reg):
         """Read an unsigned byte from the I2C device"""
-        result = self.bus.read_byte_data(self.address, reg)
-        logger.debug('I2C: Device {:#b} returned {:#b} from reg {:#b}'.format(self.address, result & 0xFF, reg))
+        log_message = f'I2C: Read from device {self.address:#b}, reg {reg:#b}.'
+        if self.bus is not None:
+            result = self.bus.read_byte_data(self.address, reg)
+            log_message += f' Result {result & 0xFF:#b}.'
+            logger.debug(log_message)
+        else:
+            logger.info(f'Missing SMBus instance. Failed {log_message}')
+            result = None
         return result
 
     def set_mode_value(self, value):
         self.write(self._MODE1, value)
 
     def get_mode_value(self):
-        self.read(self._MODE1)
+        return self.read(self._MODE1)
 
     def set_mode_bit(self, mode_bit, on=True):
         bin_value = 1 << mode_bit
@@ -117,6 +133,7 @@ class PCA:
         period_us = 1 / self._pwm_freq * 1000000
         pulse = int(pulse * 4096 / period_us)
         self.set_pwm(channel, pulse)
+
 
 if __name__=='__main__':
     center_value = 1500
