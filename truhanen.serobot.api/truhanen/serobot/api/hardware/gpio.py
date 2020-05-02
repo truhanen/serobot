@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 if GPIO is not None:
-    # Set general settings whenever the GpioDevice class is used.
+    # Set general settings whenever this module is used.
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
 else:
