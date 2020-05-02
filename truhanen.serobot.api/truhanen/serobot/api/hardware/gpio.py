@@ -20,7 +20,7 @@ class GpioState(IntEnum):
     HIGH = GPIO.HIGH if GPIO is not None else auto()
     LOW = GPIO.LOW if GPIO is not None else auto()
     # This tells e.g. that a GPIO state could not be read.
-    UNKNOWN = auto()
+    UNKNOWN = 2 if GPIO is not None else auto()
 
 
 class GpioPull(IntEnum):
